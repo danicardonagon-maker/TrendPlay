@@ -69,11 +69,52 @@ with para_ti:
             format_func=lambda x: f"{x:,}".replace(",", "."),
         )
 
+    # Resumen de lo que eligió el usuario (con comas entre géneros y punto en los miles)
+    texto_generos = ", ".join(generos_elegidos) if generos_elegidos else "ningún género"
+    texto_resenas = f"{resenas_min:,}".replace(",", ".")
     st.caption(
-        f"Elegiste: {', '.join(generos_elegidos) if generos_elegidos else 'ningún género'} · "
-        f"aprobación desde {aprobacion_min}% · "
-        f"al menos {resenas_min:,} reseñas".replace(",", ".")
+        f"Elegiste: {texto_generos} · aprobación desde {aprobacion_min}% · "
+        f"al menos {texto_resenas} reseñas"
     )
+
+    if not generos_elegidos:
+        st.info("Elige al menos un género para ver recomendaciones.")
+    else:
+        # Filtrar según lo que eligió el usuario
+        recomendados = df[
+            (df["genre"].isin(generos_elegidos))
+            & (df["approval_rate"] >= aprobacion_min)
+            & (df["total_reviews"] >= resenas_min)
+        ]
+
+        # Ordenar: primero más aprobación; si empatan, más reseñas
+        recomendados = recomendados.sort_values(
+            ["approval_rate", "total_reviews"], ascending=False
+        )
+
+        if recomendados.empty:
+            st.warning(
+                "No encontramos juegos con esos filtros. "
+                "Prueba bajando la aprobación mínima o la popularidad."
+            )
+        else:
+            st.success(
+                f"Encontramos {len(recomendados)} juegos. "
+                "Estos son los 10 mejor valorados:"
+            )
+            tabla = recomendados.head(10)[
+                ["name", "genre", "approval_rate", "total_reviews", "year"]
+            ].copy()
+            tabla["approval_rate"] = tabla["approval_rate"].round(1)
+            tabla["total_reviews"] = tabla["total_reviews"].astype(int)
+            tabla = tabla.rename(columns={
+                "name": "Juego",
+                "genre": "Género",
+                "approval_rate": "Aprobación (%)",
+                "total_reviews": "Reseñas",
+                "year": "Año",
+            })
+            st.dataframe(tabla, hide_index=True)
 
 with buscar:
     st.write("Aquí irá la ficha de cada juego.")
