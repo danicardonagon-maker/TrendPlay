@@ -13,8 +13,8 @@ Regla: no hay ticket 2 sin ticket 1 corriendo. Un ticket = un commit.
 | T-04 | Crear preparar_datos.py que guarde data/juegos_limpios.csv | El archivo existe y pesa menos de 100 MB | Daniela Cardona | ✅ |
 | T-05 | Cargar los datos en la app (con caché) | Inicio muestra "N juegos analizados" calculado, no escrito a mano | Miguel Roa | ✅ |
 | T-06 | Pestaña Para ti: controles de géneros, aprobación mínima y popularidad mínima | Los controles aparecen y se pueden mover | Miguel Roa | ✅ |
-| T-07 | Lógica del recomendador: filtrar y ordenar juegos | Al cambiar la aprobación o la popularidad cambia la lista de juegos | Juan David | ⬜ |
-| T-08 | Mostrar cada juego recomendado como tarjeta | Cada tarjeta muestra nombre, género, precio y aprobación | Daniela Cardona | ⬜ |
+| T-07 | Lógica del recomendador: filtrar y ordenar juegos | Al cambiar la aprobación o la popularidad cambia la lista de juegos | Juan David | ✅ |
+| T-08 | Mostrar cada juego recomendado como tarjeta | Cada tarjeta muestra nombre, género, precio y aprobación | Daniela Cardona | ✅ |
 
 ## Después del 22 de octubre
 

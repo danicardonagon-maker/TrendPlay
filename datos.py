@@ -21,7 +21,7 @@ def _arreglar_app_id(df):
 
 def leer_archivos():
     """PASO 1: leer los 4 archivos."""
-    opts = dict(engine="python", on_bad_lines="skip")
+    opts = dict(engine="python", on_bad_lines="skip", na_values=["\\N"])
     games_df = _arreglar_app_id(pd.read_csv(RUTA_GAMES, **opts))
     reviews_df = _arreglar_app_id(pd.read_csv(RUTA_REVIEWS, **opts))
     steamspy_df = _arreglar_app_id(pd.read_csv(RUTA_STEAMSPY, **opts))

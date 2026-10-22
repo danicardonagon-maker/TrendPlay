@@ -1,5 +1,6 @@
 import streamlit as st
 import datos
+import pandas as pd
 
 # Configuración de la página
 st.set_page_config(page_title="TrendPlay", page_icon="🎮", layout="wide")
@@ -102,19 +103,44 @@ with para_ti:
                 f"Encontramos {len(recomendados)} juegos. "
                 "Estos son los 10 mejor valorados:"
             )
-            tabla = recomendados.head(10)[
-                ["name", "genre", "approval_rate", "total_reviews", "year"]
-            ].copy()
-            tabla["approval_rate"] = tabla["approval_rate"].round(1)
-            tabla["total_reviews"] = tabla["total_reviews"].astype(int)
-            tabla = tabla.rename(columns={
-                "name": "Juego",
-                "genre": "Género",
-                "approval_rate": "Aprobación (%)",
-                "total_reviews": "Reseñas",
-                "year": "Año",
-            })
-            st.dataframe(tabla, hide_index=True)
+            top = recomendados.head(10)
+            columnas = st.columns(2)
+
+            for i, (_, juego) in enumerate(top.iterrows()):
+                # Reparte las tarjetas: una a la izquierda, otra a la derecha
+                with columnas[i % 2]:
+                    with st.container(border=True):
+                        aprob = juego["approval_rate"]
+
+                        # Veredicto calculado según la aprobación
+                        if aprob >= 95:
+                            etiqueta = "🟢 **MUY RECOMENDADO**"
+                        elif aprob >= 85:
+                            etiqueta = "🟡 **RECOMENDADO**"
+                        else:
+                            etiqueta = "🟠 **CON RESERVAS**"
+
+                        st.subheader(juego["name"], anchor=False)
+
+                        detalle = f"{juego['genre']} · {int(juego['year'])}"
+                        if "developer" in juego.index and pd.notna(juego["developer"]):
+                            detalle += f" · {juego['developer']}"
+                        st.caption(detalle)
+
+                        st.markdown(etiqueta)
+
+                        resenas = f"{int(juego['total_reviews']):,}".replace(",", ".")
+                        precio = juego["precio_usd"] if "precio_usd" in juego.index else None
+                        if pd.notna(precio) and precio > 0:
+                            texto_precio = f"${precio:.2f} USD"
+                        else:
+                            texto_precio = "Sin dato"
+
+                        st.write(
+                            f"Aprobación: **{aprob:.1f}%** · "
+                            f"Reseñas: **{resenas}** · "
+                            f"Precio: **{texto_precio}**"
+                        )
 
 with buscar:
     st.write("Aquí irá la ficha de cada juego.")
