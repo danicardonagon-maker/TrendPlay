@@ -10,7 +10,7 @@ Regla: no hay ticket 2 sin ticket 1 corriendo. Un ticket = un commit.
 | T-01 | Crear app.py con título y 4 pestañas vacías | `streamlit run app.py` abre y se ven las 4 pestañas | Juan David | ✅ |
 | T-02 | requirements.txt, .gitignore y publicar en Community Cloud | El link abre en el celular y está en README.md | Juan David | ✅ |
 | T-03 | Pasar la limpieza del notebook a datos.py | Al importar datos.py se puede generar la tabla limpia sin errores | Daniela Cardona | ✅ |
-| T-04 | Crear preparar_datos.py que guarde data/juegos_limpios.csv | El archivo existe y pesa menos de 100 MB | Daniela Cardona | ✅ |
+| T-04 | Crear preparar_datos.py que guarde data/juegos_limpios.csv | El archivo existe y pesa menos de 100 MB | Daniela Cardona |  DESCARTADA |
 | T-05 | Cargar los datos en la app (con caché) | Inicio muestra "N juegos analizados" calculado, no escrito a mano | Miguel Roa | ✅ |
 | T-06 | Pestaña Para ti: controles de géneros, aprobación mínima y popularidad mínima | Los controles aparecen y se pueden mover | Miguel Roa | ✅ |
 | T-07 | Lógica del recomendador: filtrar y ordenar juegos | Al cambiar la aprobación o la popularidad cambia la lista de juegos | Juan David | ✅ |
