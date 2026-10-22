@@ -103,11 +103,30 @@ def parsear_owners(steamspy_df):
 
 
 def fusionar(juegos_df, steamspy_df, genres_df):
-    """PASO 5: unir juegos + SteamSpy + primer género."""
-    cols_spy = [c for c in ["app_id", "owners_mid", "concurrent_users_yesterday"]
-                if c in steamspy_df.columns]
+    """PASO 5: unir juegos + SteamSpy (dueños, jugadores, precio) + primer género."""
+    posibles = ["app_id", "owners_mid", "concurrent_users_yesterday",
+                "price", "initial_price", "discount", "developer", "publisher"]
+    cols_spy = [c for c in posibles if c in steamspy_df.columns]
+    # Evita columnas repetidas si games.csv ya trae alguna con el mismo nombre
+    cols_spy = [c for c in cols_spy if c == "app_id" or c not in juegos_df.columns]
+
     df = pd.merge(juegos_df, steamspy_df[cols_spy].drop_duplicates("app_id"),
                   on="app_id", how="left")
+
+    # SteamSpy guarda el precio en centavos: 999 = 9.99 dólares
+    for col in ["price", "initial_price", "discount"]:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+    if "price" in df.columns:
+        df["price"] = df["price"] / 100
+    if "initial_price" in df.columns:
+        df["initial_price"] = df["initial_price"] / 100
+
+    df = df.rename(columns={
+        "price": "precio_usd",
+        "initial_price": "precio_original_usd",
+        "discount": "descuento_pct",
+    })
 
     if "genre" in genres_df.columns:
         primer_genero = genres_df.groupby("app_id")["genre"].first().reset_index()
