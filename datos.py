@@ -19,13 +19,35 @@ def _arreglar_app_id(df):
     return df
 
 
+def _leer_csv(ruta, columnas_necesarias):
+    """Lee un CSV y revisa que exista, que no esté vacío
+    y que tenga las columnas que la app necesita."""
+    try:
+        df = pd.read_csv(ruta, engine="python", on_bad_lines="skip", na_values=["\\N"])
+    except FileNotFoundError:
+        raise ValueError(f"No se encontró el archivo {ruta}.")
+    except pd.errors.EmptyDataError:
+        raise ValueError(f"El archivo {ruta} está completamente vacío.")
+
+    faltantes = [c for c in columnas_necesarias if c not in df.columns]
+    if faltantes:
+        raise ValueError(f"Al archivo {ruta} le faltan columnas: {', '.join(faltantes)}.")
+
+    if df.empty:
+        raise ValueError(f"El archivo {ruta} solo tiene encabezado, no trae datos.")
+
+    return _arreglar_app_id(df)
+
+
 def leer_archivos():
-    """PASO 1: leer los 4 archivos."""
-    opts = dict(engine="python", on_bad_lines="skip", na_values=["\\N"])
-    games_df = _arreglar_app_id(pd.read_csv(RUTA_GAMES, **opts))
-    reviews_df = _arreglar_app_id(pd.read_csv(RUTA_REVIEWS, **opts))
-    steamspy_df = _arreglar_app_id(pd.read_csv(RUTA_STEAMSPY, **opts))
-    genres_df = _arreglar_app_id(pd.read_csv(RUTA_GENRES, **opts))
+    """PASO 1: leer los 4 archivos y validar que sirvan."""
+    games_df = _leer_csv(RUTA_GAMES, ["app_id"])
+    if "date_release" not in games_df.columns and "release_date" not in games_df.columns:
+        raise ValueError(f"Al archivo {RUTA_GAMES} le falta la columna de fecha de lanzamiento.")
+
+    reviews_df = _leer_csv(RUTA_REVIEWS, ["app_id", "positive", "negative"])
+    steamspy_df = _leer_csv(RUTA_STEAMSPY, ["app_id", "owners_range"])
+    genres_df = _leer_csv(RUTA_GENRES, ["app_id", "genre"])
     return games_df, reviews_df, steamspy_df, genres_df
 
 
@@ -47,6 +69,8 @@ def calcular_aprobacion(games_df, reviews_df):
     reviews_df = reviews_df.copy()
     reviews_df["positive"] = pd.to_numeric(reviews_df["positive"], errors="coerce")
     reviews_df["negative"] = pd.to_numeric(reviews_df["negative"], errors="coerce")
+    # Caso 3 y 5: reseñas negativas o con letras no tienen sentido, se descartan
+    reviews_df = reviews_df[(reviews_df["positive"] >= 0) & (reviews_df["negative"] >= 0)].copy()
     reviews_df["total_reviews"] = reviews_df["positive"] + reviews_df["negative"]
 
     # Mínimo 10 reseñas para que el porcentaje sea confiable
@@ -141,4 +165,8 @@ def preparar_datos():
     games_df, reviews_df, steamspy_df = limpiar_datos_nulos(games_df, reviews_df, steamspy_df)
     juegos_df = calcular_aprobacion(games_df, reviews_df)
     steamspy_df = parsear_owners(steamspy_df)
-    return fusionar(juegos_df, steamspy_df, genres_df)
+    df = fusionar(juegos_df, steamspy_df, genres_df)
+
+    if df.empty:
+        raise ValueError("Después de la limpieza no quedó ningún juego válido.")
+    return df
