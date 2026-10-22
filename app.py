@@ -16,8 +16,12 @@ def cargar_datos():
 st.title("🎮 TrendPlay")
 st.caption("Analítica con datos de Steam para decidir qué juego comprar")
 
-with st.spinner("Cargando datos de Steam... (la primera vez tarda un poco)"):
-    df = cargar_datos()
+try:
+    with st.spinner("Cargando datos de Steam... (la primera vez tarda un poco)"):
+        df = cargar_datos()
+except ValueError as error:
+    st.error(f"No pudimos cargar los datos: {error}")
+    st.stop()
 
 # Las 4 pestañas del mockup
 inicio, para_ti, buscar, cuando = st.tabs(
