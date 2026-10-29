@@ -147,7 +147,100 @@ with para_ti:
                         )
 
 with buscar:
-    st.write("Aquí irá la ficha de cada juego.")
+    st.subheader("Buscar un juego")
+    st.write("Escribe el nombre (o parte del nombre) de un juego para ver su ficha.")
+
+    def miles(numero):
+        """Escribe 15000 como 15.000; si no hay dato, dice 'Sin dato'."""
+        if pd.isna(numero):
+            return "Sin dato"
+        return f"{int(numero):,}".replace(",", ".")
+
+    # max_chars impide textos enormes; strip quita espacios al inicio y al final
+    texto = st.text_input("Nombre del juego", max_chars=100, placeholder="Ejemplo: Paper Lily")
+    texto = texto.strip()
+
+    if texto == "":
+        st.info("Escribe el nombre de un juego para empezar.")
+    elif len(texto) < 2:
+        st.info("Escribe al menos 2 letras para buscar.")
+    else:
+        # regex=False: busca el texto tal cual, aunque tenga símbolos como ( o *
+        coincidencias = df[
+            df["name"].astype(str).str.contains(texto, case=False, regex=False, na=False)
+        ].sort_values("total_reviews", ascending=False)
+
+        if coincidencias.empty:
+            st.warning(
+                f'No encontramos juegos que contengan "{texto}". '
+                "Revisa cómo está escrito o prueba con otra palabra."
+            )
+        else:
+            # Si hay varios, el usuario elige cuál (los 50 más reseñados)
+            if len(coincidencias) > 1:
+                opciones = coincidencias.head(50)
+                st.caption(
+                    f"Encontramos {len(coincidencias)} juegos. "
+                    "Mostramos hasta 50, del más reseñado al menos reseñado."
+                )
+                elegido = st.selectbox(
+                    "Elige el juego",
+                    options=opciones.index,
+                    format_func=lambda i: f"{opciones.loc[i, 'name']} ({int(opciones.loc[i, 'year'])})",
+                )
+                juego = opciones.loc[elegido]
+            else:
+                juego = coincidencias.iloc[0]
+
+            # ---------- Ficha del juego ----------
+            with st.container(border=True):
+                st.subheader(juego["name"], anchor=False)
+
+                genero = juego["genre"] if pd.notna(juego["genre"]) else "Sin género"
+                detalle = f"{genero} · {int(juego['year'])}"
+                if "developer" in juego.index and pd.notna(juego["developer"]):
+                    detalle += f" · {juego['developer']}"
+                st.caption(detalle)
+
+                aprob = juego["approval_rate"]
+                if aprob >= 95:
+                    st.markdown("🟢 **MUY RECOMENDADO**")
+                elif aprob >= 85:
+                    st.markdown("🟡 **RECOMENDADO**")
+                else:
+                    st.markdown("🟠 **CON RESERVAS**")
+
+                c1, c2, c3, c4 = st.columns(4)
+                c1.metric("Aprobación", f"{aprob:.1f}%")
+                c2.metric("Reseñas", miles(juego["total_reviews"]))
+                c3.metric("Dueños (aprox.)", miles(juego.get("owners_mid")))
+                c4.metric("Jugando ayer", miles(juego.get("concurrent_users_yesterday")))
+
+                precio = juego.get("precio_usd")
+                if pd.notna(precio) and precio > 0:
+                    st.write(f"Precio: **${precio:.2f} USD**")
+                else:
+                    st.write("Precio: **Sin dato**")
+
+                # ---------- T-10: comparación con su género ----------
+                if pd.notna(juego["genre"]):
+                    del_genero = df[df["genre"] == juego["genre"]]
+                    promedio = del_genero["approval_rate"].mean()
+                    diferencia = aprob - promedio
+                    supera = (del_genero["approval_rate"] < aprob).mean() * 100
+
+                    if diferencia >= 0:
+                        st.success(
+                            f"Está {diferencia:.1f} puntos **por encima** del promedio de {genero} "
+                            f"({promedio:.1f}%). Supera al {supera:.0f}% de los juegos de su género."
+                        )
+                    else:
+                        st.warning(
+                            f"Está {abs(diferencia):.1f} puntos **por debajo** del promedio de {genero} "
+                            f"({promedio:.1f}%). Supera al {supera:.0f}% de los juegos de su género."
+                        )
+                else:
+                    st.info("Este juego no tiene género registrado, así que no se puede comparar.")
 
 with cuando:
     st.write("Aquí irá el calendario de ofertas.")

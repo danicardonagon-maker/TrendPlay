@@ -20,8 +20,8 @@ Regla: no hay ticket 2 sin ticket 1 corriendo. Un ticket = un commit.
 
 | ID | Tarea | Criterio de aceptación | Responsable | Estado |
 |----|-------|------------------------|-------------|--------|
-| T-09 | Pestaña Buscar juego: ficha de un juego | Al escribir un nombre se ven aprobación, precio, dueños y jugadores | Miguel Roa | ⬜ |
-| T-10 | Comparar el juego contra el promedio de su género | La ficha dice si está por encima o por debajo del promedio | Juan David | ⬜ |
+| T-09 | Pestaña Buscar juego: ficha de un juego | Al escribir un nombre se ven aprobación, precio, dueños y jugadores | Miguel Roa | ✅ |
+| T-10 | Comparar el juego contra el promedio de su género | La ficha dice si está por encima o por debajo del promedio | Juan David | ✅ |
 | T-11 | Inicio: métricas reales y mapa de calor género × precio | El mapa de calor reparte bien los juegos en los rangos de precio | Daniela Cardona | ⬜ |
 | T-12 | Manejo de datos raros en la app | Sin géneros elegidos o búsqueda sin resultados, la app avisa y no se cae | Miguel Roa | ⬜ |
 | T-13 | Entrenar modelo de aprobación y guardarlo en modelo/modelo.joblib | Su error (RMSE) es menor que el del modelo de referencia | Juan David | ⬜ |
