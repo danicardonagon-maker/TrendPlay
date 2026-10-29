@@ -1,6 +1,8 @@
 import streamlit as st
 import datos
 import pandas as pd
+from datetime import date
+import altair as alt
 
 # Configuración de la página
 st.set_page_config(page_title="TrendPlay", page_icon="🎮", layout="wide")
@@ -39,6 +41,32 @@ with inicio:
     col1.metric("Juegos analizados", f"{len(df):,}".replace(",", "."))
     col2.metric("Aprobación promedio", f"{df['approval_rate'].mean():.1f}%")
     col3.metric("Géneros distintos", df["genre"].nunique())
+    
+    st.markdown("#### Aprobación promedio por género")
+
+    por_genero = (
+        df.groupby("genre")
+        .agg(aprobacion=("approval_rate", "mean"), juegos=("approval_rate", "size"))
+        .reset_index()
+    )
+    # Géneros con pocos juegos dan promedios engañosos, por eso pedimos al menos 30
+    por_genero = por_genero[por_genero["juegos"] >= 30]
+
+    if por_genero.empty:
+        st.info("No hay suficientes juegos por género para hacer la comparación.")
+    else:
+        grafica = alt.Chart(por_genero).mark_bar().encode(
+            x=alt.X("aprobacion:Q", title="Aprobación promedio (%)",
+                    scale=alt.Scale(domain=[0, 100])),
+            y=alt.Y("genre:N", title=None, sort="-x"),
+            tooltip=[
+                alt.Tooltip("genre:N", title="Género"),
+                alt.Tooltip("aprobacion:Q", title="Aprobación (%)", format=".1f"),
+                alt.Tooltip("juegos:Q", title="Juegos"),
+            ],
+        )
+        st.altair_chart(grafica)
+        st.caption("Solo géneros con al menos 30 juegos, para que el promedio sea confiable.")
 
 with para_ti:
     st.subheader("Motor de recomendaciones")
@@ -243,4 +271,56 @@ with buscar:
                     st.info("Este juego no tiene género registrado, así que no se puede comparar.")
 
 with cuando:
-    st.write("Aquí irá el calendario de ofertas.")
+    st.subheader("¿Cuándo comprar?")
+    st.write(
+        "Steam concentra sus mayores descuentos en temporadas que se repiten cada año. "
+        "Si un juego no es urgente, conviene esperar a la próxima."
+    )
+
+    # (mes en que empieza, nombre, fechas aproximadas)
+    temporadas = [
+        (1, "Rebajas de Año Nuevo Lunar", "Enero o febrero"),
+        (3, "Rebajas de primavera", "Marzo"),
+        (6, "Rebajas de verano", "Finales de junio a inicios de julio"),
+        (11, "Rebajas de otoño", "Finales de noviembre"),
+        (12, "Rebajas de invierno", "Finales de diciembre a inicios de enero"),
+    ]
+
+    # La próxima temporada se calcula con la fecha de hoy
+    mes_actual = date.today().month
+    proxima = next((t for t in temporadas if t[0] >= mes_actual), temporadas[0])
+    st.info(f"Próxima temporada de descuentos: **{proxima[1]}** ({proxima[2]}).")
+
+    calendario = pd.DataFrame(
+        [(nombre, fechas) for _, nombre, fechas in temporadas],
+        columns=["Temporada", "Fechas aproximadas"],
+    )
+    st.dataframe(calendario, hide_index=True)
+    st.caption(
+        "Fechas aproximadas según el patrón de años anteriores. "
+        "Steam anuncia las fechas exactas cada año."
+    )
+
+    # Dato real de nuestros archivos: descuentos el día que se bajaron los datos
+    if "descuento_pct" in df.columns:
+        con_descuento = df[df["descuento_pct"] > 0]
+        total_txt = f"{len(df):,}".replace(",", ".")
+        st.write(
+            f"En la foto de nuestros datos, **{len(con_descuento)}** de {total_txt} "
+            "juegos tenían algún descuento ese día."
+        )
+        if not con_descuento.empty:
+            top = con_descuento.sort_values("descuento_pct", ascending=False).head(5)
+            top = top[["name", "descuento_pct", "approval_rate"]].rename(columns={
+                "name": "Juego",
+                "descuento_pct": "Descuento (%)",
+                "approval_rate": "Aprobación (%)",
+            })
+            top["Aprobación (%)"] = top["Aprobación (%)"].round(1)
+            st.dataframe(top, hide_index=True)
+
+    st.caption(
+        "Nuestros datos no traen historial de precios ni de juegos regalados en Epic, "
+        "así que todavía no podemos predecir cuándo baja un juego en particular. "
+        "Es una mejora futura."
+    )
