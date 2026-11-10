@@ -47,3 +47,15 @@ Probamos la limpieza de datos con archivos dañados a propósito usando `probar_
 | 8 | Archivo de una sola fila | Cada archivo con un solo juego | Sigue funcionando con 1 juego. La app no usa desviación estándar ni gráficas de tendencia que se rompan con una fila | Funciona sin cambios |
 
 En ningún caso la app se cae ni muestra datos falsos sin avisar.
+
+## 4. Pruebas en la pestaña Buscar juego
+
+| # | Prueba | Qué hace la app | Resultado obtenido |
+|---|--------|-----------------|--------------------|
+| 1 | Campo vacío o solo espacios | Aviso azul: "Escribe el nombre de un juego para empezar" | ✅ Funcionó como se esperaba |
+| 2 | Una sola letra ("a") | Aviso: "Escribe al menos 2 letras" | ✅ Funcionó como se esperaba |
+| 3 | Texto sin resultados ("zzzzzz") | Aviso amarillo de que no hay coincidencias | ✅ Funcionó como se esperaba |
+| 4 | Símbolos ("(" o "***") | Busca el texto tal cual, sin error | ✅ Funcionó como se esperaba |
+| 5 | Números ("2077") | Busca normal, sin caerse | ✅ Funcionó como se esperaba |
+| 6 | Texto muy largo | El campo no deja escribir más de 100 caracteres | ✅ Impedido por diseño |
+| 7 | Juego sin género o sin dueños | Muestra "Sin dato" o avisa que no se puede comparar | ✅ Validado |

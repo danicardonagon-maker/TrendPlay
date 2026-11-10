@@ -3,6 +3,7 @@ import datos
 import pandas as pd
 from datetime import date
 import altair as alt
+import estilo
 
 # Configuración de la página
 st.set_page_config(page_title="TrendPlay", page_icon="🎮", layout="wide")
@@ -15,8 +16,8 @@ def cargar_datos():
     return datos.preparar_datos()
 
 
-st.title("🎮 TrendPlay")
-st.caption("Analítica con datos de Steam para decidir qué juego comprar")
+estilo.aplicar_estilo()
+estilo.banner()
 
 try:
     with st.spinner("Cargando datos de Steam... (la primera vez tarda un poco)"):
@@ -27,7 +28,7 @@ except ValueError as error:
 
 # Las 4 pestañas del mockup
 inicio, para_ti, buscar, cuando = st.tabs(
-    ["Inicio", "Para ti", "Buscar juego", "¿Cuándo comprar?"]
+    ["🏠 Inicio", "🎯 Para ti", "🔍 Buscar juego", "🗓️ ¿Cuándo comprar?"]
 )
 
 with inicio:
@@ -55,7 +56,7 @@ with inicio:
     if por_genero.empty:
         st.info("No hay suficientes juegos por género para hacer la comparación.")
     else:
-        grafica = alt.Chart(por_genero).mark_bar().encode(
+        grafica = alt.Chart(por_genero).mark_bar(color="#00FF87", cornerRadiusEnd=4).encode(
             x=alt.X("aprobacion:Q", title="Aprobación promedio (%)",
                     scale=alt.Scale(domain=[0, 100])),
             y=alt.Y("genre:N", title=None, sort="-x"),
