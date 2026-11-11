@@ -18,6 +18,11 @@ def cargar_datos():
 
 estilo.aplicar_estilo()
 estilo.banner()
+# Aviso de uso: el mismo texto que aparece en el informe final (sección 7)
+st.info(
+    "TrendPlay usa reseñas de Steam a octubre de 2024. La aprobación muestra la opinión "
+    "de la comunidad, no tu gusto personal: úsala como una señal más antes de comprar."
+)
 
 try:
     with st.spinner("Cargando datos de Steam... (la primera vez tarda un poco)"):
