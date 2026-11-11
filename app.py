@@ -18,7 +18,7 @@ def cargar_datos():
 
 estilo.aplicar_estilo()
 estilo.banner()
-# Aviso de uso: el mismo texto que aparece en el informe final (sección 7)
+# Aviso de uso: el mismo texto que aparece en el informe final 
 st.info(
     "TrendPlay usa reseñas de Steam a octubre de 2024. La aprobación muestra la opinión "
     "de la comunidad, no tu gusto personal: úsala como una señal más antes de comprar."

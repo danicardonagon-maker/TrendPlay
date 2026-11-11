@@ -28,7 +28,7 @@ Regla: no hay ticket 2 sin ticket 1 corriendo. Un ticket = un commit.
 | T-14 | Pestaña Predicción | Descartado: depende del T-13 | Daniela Cardona | ❌ |
 | T-15 | Pestaña ¿Cuándo comprar?: calendario de ofertas de Steam | Muestra la próxima temporada calculada con la fecha de hoy, el calendario y una nota de que es información general | Miguel Roa | ✅ |
 | T-16 | Documento de errores con datos raros (docs/errores.md) | Lista de pruebas con campo vacío, cero, letras y los 8 casos | Todos | ✅ |
-| T-17 | Colores y estilo parecidos al mockup | La app se parece visualmente al mockup | Juan David | ⬜ Opcional |
+| T-17 | Colores y estilo parecidos al mockup | La app se parece visualmente al mockup | Juan David | ✅ Opcional |
 
 ## Arreglos de los 8 casos (sesión 13)
 
